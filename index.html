@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>సరుకుల పట్టిక | Sarukula List</title>
+  <meta name="theme-color" content="#15803d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@500;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- html2canvas for generating downloadable/shareable image -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #15803d;
+      --primary-light: #dcfce7;
+      --primary-dark: #14532d;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --whatsapp: #25D366;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Telugu', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 100px;
+    }
+
+    /* Header */
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 18px 16px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    header p {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .clear-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Search & Custom Add */
+    .controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .controls input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .add-custom-btn {
+      background: #facc15;
+      color: #0f172a;
+      border: none;
+      padding: 0 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* Category Tabs */
+    .tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--bg);
+      position: sticky;
+      top: 106px;
+      z-index: 40;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .category-section {
+      margin-bottom: 24px;
+    }
+
+    .category-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 10px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Item Card */
+    .item-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      transition: all 0.15s ease;
+    }
+
+    .item-card.selected {
+      border-color: var(--primary);
+      background: #f0fdf4;
+    }
+
+    .item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      gap: 10px;
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .checkbox {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: white;
+      font-weight: bold;
+      color: white;
+    }
+
+    .item-card.selected .checkbox {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .item-names .te {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      display: block;
+    }
+
+    .item-names .en {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .qty-badge {
+      background: var(--primary);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    /* Quantity Selector Drawer inside card */
+    .qty-drawer {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #bbf7d0;
+      display: none;
+    }
+
+    .item-card.selected .qty-drawer {
+      display: block;
+    }
+
+    .qty-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .chip {
+      background: white;
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .custom-qty-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .custom-qty-row input {
+      flex: 1;
+      padding: 7px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    /* Bottom Floating Bar */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+      z-index: 60;
+    }
+
+    .count-info {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .count-info strong {
+      display: block;
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+
+    .review-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .review-btn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    /* Report Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      background: white;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      border-radius: 20px 20px 0 0;
+      padding: 20px 16px 28px;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .close-modal {
+      background: #f1f5f9;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    /* Printable Receipt Card */
+    #receipt-card {
+      background: #ffffff;
+      border: 2px solid #15803d;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .receipt-head {
+      text-align: center;
+      border-bottom: 1.5px dashed #cbd5e1;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .receipt-head h2 {
+      color: var(--primary-dark);
+      font-size: 1.2rem;
+    }
+
+    .receipt-head span {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .receipt-cat {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 10px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.95rem;
+    }
+
+    .receipt-row:last-child { border-bottom: none; }
+
+    .receipt-qty {
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    /* Share Buttons */
+    .share-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-wa {
+      background: var(--whatsapp);
+      color: #064e3b;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-img {
+      background: #0f172a;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>సరుకుల పట్టిక • Sarukula List</h1>
+        <p>Select items & quantity to share on WhatsApp</p>
+      </div>
+      <button class="clear-btn" onclick="clearAll()">Clear All</button>
+    </div>
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="Search item / వెతకండి..." oninput="renderList()" />
+      <button class="add-custom-btn" onclick="addCustomItem()">+ Add Item</button>
+    </div>
+  </header>
+
+  <div class="tabs" id="categoryTabs"></div>
+
+  <div class="container" id="listContainer"></div>
+
+  <div class="bottom-bar">
+    <div class="count-info">
+      <strong id="selectedCount">0 Items</strong>
+      <span>Selected in list</span>
+    </div>
+    <button class="review-btn" id="reviewBtn" onclick="openReport()" disabled>
+      View Report / జాబితా →
+    </button>
+  </div>
+
+  <!-- Report Modal -->
+  <div class="modal-overlay" id="reportModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3>Final Grocery List</h3>
+        <button class="close-modal" onclick="closeReport()">✕</button>
+      </div>
+
+      <!-- This div gets captured as an image -->
+      <div id="receipt-card">
+        <div class="receipt-head">
+          <h2>🛒 సరుకుల జాబితా (Sarukula List)</h2>
+          <span id="receiptDate"></span>
+        </div>
+        <div id="receiptBody"></div>
+      </div>
+
+      <div class="share-actions">
+        <button class="btn-wa" onclick="shareWhatsAppText()">
+          📲 Send Text on WhatsApp
+        </button>
+        <button class="btn-img" onclick="shareOrDownloadImage()">
+          🖼️ Share / Save as Image (Photo)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Preloaded Bilingual Grocery Database
+    const GROCERY_DATA = [
+      {
+        category: "పప్పులు & బియ్యం (Rice & Dals)",
+        items: [
+          { id: "rice", te: "బియ్యం", en: "Rice (Sona Masoori)", defaultQty: "25 kg" },
+          { id: "toor", te: "కందిపప్పు", en: "Toor Dal", defaultQty: "1 kg" },
+          { id: "moong", te: "పెసరపప్పు", en: "Moong Dal", defaultQty: "500 g" },
+          { id: "urad", te: "మినపప్పు", en: "Urad Dal", defaultQty: "1 kg" },
+          { id: "chana", te: "శనగపప్పు", en: "Chana Dal", defaultQty: "500 g" },
+          { id: "idli_rava", te: "ఇడ్లీ రవ్వ", en: "Idli Rava", defaultQty: "1 kg" },
+          { id: "upma_rava", te: "బొంబాయి రవ్వ", en: "Upma Rava / Sooji", defaultQty: "500 g" },
+          { id: "atta", te: "గోధుమ పిండి", en: "Wheat Flour (Atta)", defaultQty: "1 kg" },
+          { id: "poha", te: "అటుకులు", en: "Poha / Flattened Rice", defaultQty: "500 g" }
+        ]
+      },
+      {
+        category: "నూనె & నెయ్యి (Oils & Ghee)",
+        items: [
+          { id: "sunflower", te: "వంట నూనె", en: "Cooking Oil", defaultQty: "1 L" },
+          { id: "groundnut_oil", te: "వేరుశనగ నూనె", en: "Groundnut Oil", defaultQty: "1 L" },
+          { id: "ghee", te: "నెయ్యి", en: "Cow Ghee", defaultQty: "500 ml" },
+          { id: "sesame_oil", te: "నువ్వుల నూనె", en: "Sesame Oil (Pooja/Cooking)", defaultQty: "500 ml" }
+        ]
+      },
+      {
+        category: "మసాలా దినుసులు (Spices & Condiments)",
+        items: [
+          { id: "chilli", te: "కారం పొడి", en: "Red Chilli Powder", defaultQty: "500 g" },
+          { id: "turmeric", te: "పసుపు", en: "Turmeric Powder", defaultQty: "250 g" },
+          { id: "salt", te: "ఉప్పు", en: "Crystal / Iodized Salt", defaultQty: "1 kg" },
+          { id: "tamarind", te: "చింతపండు", en: "Tamarind", defaultQty: "500 g" },
+          { id: "mustard", te: "ఆవాలు", en: "Mustard Seeds", defaultQty: "100 g" },
+          { id: "jeera", te: "జీలకర్ర", en: "Cumin Seeds (Jeera)", defaultQty: "100 g" },
+          { id: "coriander", te: "ధనియాలు", en: "Coriander Seeds", defaultQty: "250 g" },
+          { id: "fenugreek", te: "మెంతులు", en: "Fenugreek (Menthulu)", defaultQty: "100 g" },
+          { id: "pepper", te: "మిరియాలు", en: "Black Pepper", defaultQty: "₹20" },
+          { id: "cardamom", te: "యాలకులు", en: "Cardamom (Elachi)", defaultQty: "₹20" },
+          { id: "cloves", te: "లవంగాలు & దాల్చిన చెక్క", en: "Cloves & Cinnamon", defaultQty: "₹20" },
+          { id: "peanuts", te: "వేరుశనగ గుళ్ళు", en: "Peanuts (Palli)", defaultQty: "500 g" }
+        ]
+      },
+      {
+        category: "కూరగాయలు (Vegetables)",
+        items: [
+          { id: "onion", te: "ఉల్లిపాయలు", en: "Onions", defaultQty: "2 kg" },
+          { id: "tomato", te: "టమాటాలు", en: "Tomatoes", defaultQty: "1 kg" },
+          { id: "potato", te: "బంగాళదుంపలు", en: "Potatoes", defaultQty: "1 kg" },
+          { id: "green_chilli", te: "పచ్చిమిర్చి", en: "Green Chillies", defaultQty: "₹20" },
+          { id: "ginger_garlic", te: "అల్లం & వెల్లుల్లి", en: "Ginger & Garlic", defaultQty: "250 g" },
+          { id: "coriander_leaves", te: "కొత్తిమీర & కరివేపాకు", en: "Coriander & Curry Leaves", defaultQty: "₹10" },
+          { id: "lemon", te: "నిమ్మకాయలు", en: "Lemons", defaultQty: "₹20" },
+          { id: "okra", te: "బెండకాయలు", en: "Ladies Finger (Okra)", defaultQty: "500 g" },
+          { id: "brinjal", te: "వంకాయలు", en: "Brinjal", defaultQty: "500 g" }
+        ]
+      },
+      {
+        category: "పాలు, టీ & స్నాక్స్ (Dairy & Beverages)",
+        items: [
+          { id: "sugar", te: "పంచదార", en: "Sugar", defaultQty: "1 kg" },
+          { id: "jaggery", te: "బెల్లం", en: "Jaggery", defaultQty: "500 g" },
+          { id: "tea", te: "టీ పొడి", en: "Tea Powder", defaultQty: "250 g" },
+          { id: "coffee", te: "కాఫీ పొడి", en: "Coffee Powder", defaultQty: "100 g" },
+          { id: "milk", te: "పాలు", en: "Milk", defaultQty: "1 L" },
+          { id: "curd", te: "పెరుగు", en: "Curd", defaultQty: "500 g" },
+          { id: "biscuits", te: "బిస్కెట్లు", en: "Biscuits", defaultQty: "2 pkts" }
+        ]
+      },
+      {
+        category: "ఇంటి అవసరాలు (Household & Bath)",
+        items: [
+          { id: "bath_soap", te: "స్నానం సబ్బులు", en: "Bath Soaps", defaultQty: "4 pcs" },
+          { id: "detergent", te: "బట్టల సర్ఫ్ / సబ్బు", en: "Detergent Powder / Bar", defaultQty: "1 kg" },
+          { id: "dishwash", te: "గిన్నెల సబ్బు / లిక్విడ్", en: "Dishwash Bar / Liquid", defaultQty: "1 pkt" },
+          { id: "toothpaste", te: "టూత్ పేస్ట్", en: "Toothpaste", defaultQty: "1 pc" },
+          { id: "shampoo", te: "షాంపూ", en: "Shampoo", defaultQty: "1 bottle" },
+          { id: "agarbatti", te: "అగరబత్తీలు & కర్పూరం", en: "Agarbatti & Camphor", defaultQty: "1 pkt" }
+        ]
+      }
+    ];
+
+    const QTY_PRESETS = ["₹10", "₹20", "₹50", "100 g", "250 g", "500 g", "1 kg", "2 kg", "500 ml", "1 L", "1 pkt"];
+
+    // Load saved state from localStorage
+    let selectedItems = JSON.parse(localStorage.getItem("sarukula_selected") || "{}");
+    let customItems = JSON.parse(localStorage.getItem("sarukula_custom") || "[]");
+    let activeCategory = "ALL";
+
+    function saveState() {
+      localStorage.setItem("sarukula_selected", JSON.stringify(selectedItems));
+      localStorage.setItem("sarukula_custom", JSON.stringify(customItems));
+      updateBottomBar();
+    }
+
+    function getAllCategories() {
+      if (customItems.length > 0) {
+        return [{ category: "ఇతర సరుకులు (Custom Items)", items: customItems }, ...GROCERY_DATA];
+      }
+      return GROCERY_DATA;
+    }
+
+    function renderTabs() {
+      const tabsEl = document.getElementById("categoryTabs");
+      const categories = getAllCategories();
+      let html = `<button class="tab ${activeCategory === 'ALL' ? 'active' : ''}" onclick="setCategory('ALL')">All (అన్నీ)</button>`;
+      categories.forEach(cat => {
+        const shortName = cat.category.split("(")[0].trim();
+        html += `<button class="tab ${activeCategory === cat.category ? 'active' : ''}" onclick="setCategory('${cat.category}')">${shortName}</button>`;
+      });
+      tabsEl.innerHTML = html;
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      renderTabs();
+      renderList();
+    }
+
+    function renderList() {
+      const container = document.getElementById("listContainer");
+      const query = document.getElementById("searchInput").value.toLowerCase().trim();
+      const categories = getAllCategories();
+      let html = "";
+
+      categories.forEach(cat => {
+        if (activeCategory !== "ALL" && activeCategory !== cat.category) return;
+
+        const filtered = cat.items.filter(item =>
+          item.te.toLowerCase().includes(query) ||
+          item.en.toLowerCase().includes(query)
+        );
+
+        if (filtered.length === 0) return;
+
+        html += `<div class="category-section"><div class="category-title">${cat.category}</div>`;
+
+        filtered.forEach(item => {
+          const isSelected = Boolean(selectedItems[item.id]);
+          const currentQty = isSelected ? selectedItems[item.id].qty : item.defaultQty;
+
+          html += `
+            <div class="item-card ${isSelected ? 'selected' : ''}" id="card-${item.id}">
+              <div class="item-header" onclick="toggleItem('${item.id}', '${escapeStr(item.te)}', '${escapeStr(item.en)}', '${escapeStr(cat.category)}', '${escapeStr(item.defaultQty)}')">
+                <div class="item-left">
+                  <div class="checkbox">${isSelected ? '✓' : ''}</div>
+                  <div class="item-names">
+                    <span class="te">${item.te}</span>
+                    <span class="en">${item.en}</span>
+                  </div>
+                </div>
+                ${isSelected ? `<span class="qty-badge">${currentQty}</span>` : ''}
+              </div>
+
+              <div class="qty-drawer">
+                <div class="qty-chips">
+                  ${QTY_PRESETS.map(preset => `
+                    <button class="chip ${currentQty === preset ? 'active' : ''}" onclick="updateQty('${item.id}', '${preset}')">${preset}</button>
+                  `).join('')}
+                </div>
+                <div class="custom-qty-row">
+                  <input type="text" placeholder="Custom (e.g. 3 kg, ₹30, 2 boxes)" value="${QTY_PRESETS.includes(currentQty) ? '' : currentQty}" oninput="updateQty('${item.id}', this.value)" />
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+      });
+
+      container.innerHTML = html || `<p style="text-align:center; color:#64748b; margin-top:30px;">No items found. Tap "+ Add Item" above to add it.</p>`;
+      updateBottomBar();
+    }
+
+    function escapeStr(str) {
+      return str.replace(/'/g, "\\'");
+    }
+
+    function toggleItem(id, te, en, category, defaultQty) {
+      if (selectedItems[id]) {
+        delete selectedItems[id];
+      } else {
+        selectedItems[id] = { id, te, en, category, qty: defaultQty };
+      }
+      saveState();
+      renderList();
+    }
+
+    function updateQty(id, newQty) {
+      if (!selectedItems[id]) return;
+      selectedItems[id].qty = newQty.trim() || "1 pkt";
+      saveState();
+      // Update badge & chip highlights without losing input focus
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        const badge = card.querySelector(".qty-badge");
+        if (badge) badge.textContent = selectedItems[id].qty;
+        card.querySelectorAll(".chip").forEach(chip => {
+          chip.classList.toggle("active", chip.textContent === selectedItems[id].qty);
+        });
+      }
+    }
+
+    function addCustomItem() {
+      const name = prompt("Enter item name (Telugu or English):\nఉదాహరణ: కొబ్బరికాయ / Coconut");
+      if (!name || !name.trim()) return;
+      const newItem = {
+        id: "custom_" + Date.now(),
+        te: name.trim(),
+        en: "Custom Item",
+        defaultQty: "1 pkt"
+      };
+      customItems.unshift(newItem);
+      selectedItems[newItem.id] = {
+        id: newItem.id,
+        te: newItem.te,
+        en: newItem.en,
+        category: "ఇతర సరుకులు (Custom Items)",
+        qty: "1 pkt"
+      };
+      saveState();
+      renderTabs();
+      renderList();
+    }
+
+    function clearAll() {
+      if (Object.keys(selectedItems).length === 0) return;
+      if (confirm("Clear all selected groceries?")) {
+        selectedItems = {};
+        saveState();
+        renderList();
+      }
+    }
+
+    function updateBottomBar() {
+      const count = Object.keys(selectedItems).length;
+      document.getElementById("selectedCount").textContent = `${count} Item${count === 1 ? '' : 's'}`;
+      document.getElementById("reviewBtn").disabled = count === 0;
+    }
+
+    function openReport() {
+      const items = Object.values(selectedItems);
+      if (items.length === 0) return;
+
+      const now = new Date();
+      document.getElementById("receiptDate").textContent = now.toLocaleDateString('en-IN', {
+        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+      });
+
+      // Group by category
+      const grouped = {};
+      items.forEach(item => {
+        if (!grouped[item.category]) grouped[item.category] = [];
+        grouped[item.category].push(item);
+      });
+
+      let bodyHtml = "";
+      for (const [cat, list] of Object.entries(grouped)) {
+        bodyHtml += `<div class="receipt-cat">${cat}</div>`;
+        list.forEach((item, idx) => {
+          bodyHtml += `
+            <div class="receipt-row">
+              <span>${idx + 1}. <strong>${item.te}</strong> (${item.en})</span>
+              <span class="receipt-qty">${item.qty}</span>
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById("receiptBody").innerHTML = bodyHtml;
+      document.getElementById("reportModal").classList.add("open");
+    }
+
+    function closeReport() {
+      document.getElementById("reportModal").classList.remove("open");
+    }
+
+    function shareWhatsAppText() {
+      const items = Object.values(selectedItems);
+      const dateStr = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      let text = `*🛒 సరుకుల జాబితా (Sarukula List - ${dateStr})*\n\n`;
+
+      const grouped = {};
+      items.forEach(item => {
+        if (!grouped[item.category]) grouped[item.category] = [];
+        grouped[item.category].push(item);
+      });
+
+      for (const [cat, list] of Object.entries(grouped)) {
+        text += `*${cat}*\n`;
+        list.forEach((item, i) => {
+          text += `${i + 1}. ${item.te} (${item.en}) — *${item.qty}*\n`;
+        });
+        text += `\n`;
+      }
+
+      text += `Total Items: ${items.length}`;
+      const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank");
+    }
+
+    async function shareOrDownloadImage() {
+      const receiptEl = document.getElementById("receipt-card");
+      const canvas = await html2canvas(receiptEl, { scale: 2, backgroundColor: "#ffffff" });
+
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], "sarukula-list.png", { type: "image/png" });
+
+        // Use native mobile share sheet if available (lets her pick WhatsApp directly)
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: "Sarukula List",
+              text: "Here is the grocery list"
+            });
+            return;
+          } catch (err) {
+            console.log("Share cancelled or fallback to download");
+          }
+        }
+
+        // Fallback: Download PNG directly
+        const link = document.createElement("a");
+        link.download = "sarukula-list.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+
+    // Initialize
+    renderTabs();
+    renderList();
+  </script>
+</body>
+</html>
